@@ -43,12 +43,14 @@ namespace DotNet5_Sample
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DotNet5_Sample v1"));
             }
-
-            app.UseHttpsRedirection();
+            
+            // No need to user https as this is test project and never go live
+            // app.UseHttpsRedirection();
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            // Authorization is not required for this test project
+            // app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
