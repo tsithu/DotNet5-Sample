@@ -8,10 +8,8 @@ namespace DotNet5WebApi.Library
         public string File { get; init; }
         public Validator Validator { get; init; }
 
-        public CsvParser(string file, Validator validator) {
-            File = file;
-            Validator = validator;
-        }
+        public CsvParser(string file, Validator validator)
+            => (File, Validator) = (file, validator);
 
         public List<T> Parse() {
             var list = new List<T>();

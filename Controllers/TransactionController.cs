@@ -11,10 +11,12 @@ namespace DotNet5WebApi.Controllers
     public class TransactionController : BaseController
     {
         private readonly ILogger<TransactionController> _logger;
+        private readonly AppDbContext _dbContext;
 
-        public TransactionController(ILogger<TransactionController> logger)
+        public TransactionController(ILogger<TransactionController> logger, AppDbContext dbContext)
         {
             _logger = logger;
+            _dbContext = dbContext;
         }
 
         [HttpGet]
