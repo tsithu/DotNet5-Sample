@@ -352,3 +352,6 @@ MigrationBackup/
 # KDE config file
 .directory
 
+#node_modules
+client/node_modules
+

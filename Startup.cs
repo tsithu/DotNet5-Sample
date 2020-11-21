@@ -12,10 +12,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http.Features;
 namespace DotNet5WebApi
 {
     public class Startup
-    {
+    {        readonly string MyAllowSpecificOrigins = "AllowSpecificOrigins";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -26,6 +27,22 @@ namespace DotNet5WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                builder =>
+                {
+                    builder.WithOrigins(Configuration["cors"].Split(','))
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+            services.Configure<FormOptions>(o =>
+            {
+                o.ValueLengthLimit = int.MaxValue;
+                o.MultipartBodyLengthLimit = int.MaxValue;
+                o.MemoryBufferThreshold = int.MaxValue;
+            });        
             services.AddDbContext<AppDbContext>(
                 options => options.UseSqlite(Configuration["connectionString"])
             );
@@ -51,6 +68,7 @@ namespace DotNet5WebApi
 
             app.UseRouting();
 
+            app.UseCors(MyAllowSpecificOrigins);
             // Authorization is not required for this test project
             // app.UseAuthorization();
 

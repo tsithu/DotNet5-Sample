@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using DotNet5WebApi.Models;
 using DotNet5WebApi.Library;
 using Microsoft.Extensions.Configuration;
-
+using Microsoft.AspNetCore.Http;
 namespace DotNet5WebApi.Controllers
 {
     [ApiController]
@@ -22,21 +22,18 @@ namespace DotNet5WebApi.Controllers
         public UploadController(ILogger<UploadController> logger, IConfiguration config, AppDbContext dbContext)
          => (Logger, Config, DbContext) = (logger, config, dbContext);
 
-
-        [HttpPost, DisableRequestSizeLimit]
-        public async Task<ActionResult<int>> Index()
+        [HttpPost, RequestSizeLimit(1_000_000)]
+        public async Task<ActionResult<int>> Index([FromForm] IFormFile file)
         {
             try
             {
-                /*                                
-                TODO: get file and save
-                */
-                var fileName = "upload-test.csv"; // Request.Form.Files[0];
+                var fileName = file?.FileName;
+                Logger.LogInformation(String.Format("File Name: {0} .", fileName));
                 var folderName = Path.Combine(Directory.GetCurrentDirectory(), Config["UploadDir"]);
-                var file =  Path.Combine(folderName, fileName);
+                var filePath =  Path.Combine(folderName, fileName);
                 var validator = new Validator();
                 var parserFactory = new ParserFactory();
-                var transactionParser = parserFactory.GetDataParser<Transaction>(file, validator);
+                var transactionParser = parserFactory.GetDataParser<Transaction>(filePath, validator);
                 var transactionList = transactionParser.Parse((parserType, obj) => {
                     switch(parserType) {
                         case "csv":
