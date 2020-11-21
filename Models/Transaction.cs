@@ -15,8 +15,6 @@ namespace DotNet5WebApi.Models
         [Required]
         public DateTime TransactionDate { get; set; }
 
-        [NotMapped]
-        public string TransactionDateStr { get; set; }
 
         [Column("code")]
         [Required]

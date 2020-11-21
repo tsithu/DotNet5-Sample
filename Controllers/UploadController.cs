@@ -18,12 +18,13 @@ namespace DotNet5WebApi.Controllers
     {
         private ILogger<UploadController> Logger { get; init; }
         private IConfiguration Config { get; init; }
-        public UploadController(ILogger<UploadController> logger, IConfiguration config)
-         => (Logger, Config) = (logger, config);
+        private AppDbContext DbContext { get; init; }
+        public UploadController(ILogger<UploadController> logger, IConfiguration config, AppDbContext dbContext)
+         => (Logger, Config, DbContext) = (logger, config, dbContext);
 
 
         [HttpPost, DisableRequestSizeLimit]
-        public IActionResult Index()
+        public async Task<ActionResult<int>> Index()
         {
             try
             {
@@ -48,18 +49,31 @@ namespace DotNet5WebApi.Controllers
                             break;
                     }
                 });
-                /*                                
-                TODO: To Save Parsed Data
-                */
-                Logger.LogInformation(file);
-                Logger.LogInformation(JsonSerializer.Serialize(transactionList));
+
+                var effectedRecords = await SaveToDatabase<Transaction>(transactionList);
                 
-                return Ok();
+                return Ok(effectedRecords);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex}");
             }
+        }
+
+        private async Task<int> SaveToDatabase<T>(IEnumerable<T> records) {
+            var count = 0;
+
+            await using (var context = DbContext) {
+                
+                foreach (T record in records)
+                {
+                    context.Add(record);
+                }
+
+                count = await context.SaveChangesAsync();
+            };
+
+            return count;
         }
     }
 }
