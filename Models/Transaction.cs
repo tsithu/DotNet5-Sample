@@ -29,7 +29,7 @@ namespace DotNet5WebApi.Models
         public decimal Amount { get; set; }
 
         [NotMapped]
-        string Payment {
+        public string Payment {
             get => String.Format("{0:#,##0.00} {1}", Amount, CurrencyCode);
         }
         

@@ -11,6 +11,9 @@ namespace DotNet5WebApi.Controllers
     [Route("api/[controller]")]
     public abstract class BaseController : ControllerBase
     {
-
+        protected ILogger<TransactionController> Logger { get; init; }
+        protected AppDbContext DbContext { get; init; }
+        public BaseController(ILogger<TransactionController> logger, AppDbContext dbContext)
+            => (Logger, DbContext) = (logger, dbContext);
     }
 }
