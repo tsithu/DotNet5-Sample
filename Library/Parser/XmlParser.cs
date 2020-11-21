@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-
 namespace DotNet5WebApi.Library
 {
     public class XmlParser<T> : IParser<T>
@@ -10,7 +9,7 @@ namespace DotNet5WebApi.Library
 
         public XmlParser(string file, Validator validator)
             => (File, Validator) = (file, validator);
-        public List<T> Parse() {
+        public IEnumerable<T> Parse(Action<string, dynamic> callback = null) {
             var list = new List<T>();
 
             return list;

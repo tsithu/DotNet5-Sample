@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,14 +16,11 @@ namespace DotNet5WebApi.Controllers
     [Route("api/[controller]")]
     public class UploadController : ControllerBase
     {
-        private readonly ILogger<UploadController> _logger;
-        private readonly IConfiguration _config;
+        private ILogger<UploadController> Logger { get; init; }
+        private IConfiguration Config { get; init; }
+        public UploadController(ILogger<UploadController> logger, IConfiguration config)
+         => (Logger, Config) = (logger, config);
 
-        public UploadController(ILogger<UploadController> logger, IConfiguration configuration)
-        {
-            _logger = logger;
-            _config = configuration;
-        }
 
         [HttpPost, DisableRequestSizeLimit]
         public IActionResult Index()
@@ -33,17 +31,28 @@ namespace DotNet5WebApi.Controllers
                 TODO: get file and save
                 */
                 var fileName = "upload-test.csv"; // Request.Form.Files[0];
-                var folderName = Path.Combine(Directory.GetCurrentDirectory(), this._config["UploadDir"]);
+                var folderName = Path.Combine(Directory.GetCurrentDirectory(), Config["UploadDir"]);
                 var file =  Path.Combine(folderName, fileName);
                 var validator = new Validator();
                 var parserFactory = new ParserFactory();
                 var transactionParser = parserFactory.GetDataParser<Transaction>(file, validator);
-                var transactionList = transactionParser.Parse();
+                var transactionList = transactionParser.Parse((parserType, obj) => {
+                    switch(parserType) {
+                        case "csv":
+                            obj.Configuration.RegisterClassMap<TransactionMap>();
+                            break;
+                        case "xml":
+                            // Do Something if needed
+                            break;
+                        default:
+                            break;
+                    }
+                });
                 /*                                
                 TODO: To Save Parsed Data
                 */
-                _logger.LogInformation(file);
-                _logger.LogInformation(transactionList.ToString());
+                Logger.LogInformation(file);
+                Logger.LogInformation(JsonSerializer.Serialize(transactionList));
                 
                 return Ok();
             }

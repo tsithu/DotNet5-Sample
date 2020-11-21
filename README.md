@@ -5,13 +5,13 @@ Testing Project: Simple Transaction with .NET 5
 dotnet ef database update
 ```
 
-### To run 
+### To Run 
 ```
 dotnet build
 dotnet run
 ```
 
-### To check
+### To Check
 ```
 http://localhost:5000/swagger/index.html
 ```

@@ -1,6 +1,9 @@
 using System;
+using System.IO;
+using System.Linq;
+using System.Globalization;
 using System.Collections.Generic;
-
+using CsvHelper;
 namespace DotNet5WebApi.Library
 {
     public class CsvParser<T> :  IParser<T>
@@ -10,11 +13,15 @@ namespace DotNet5WebApi.Library
 
         public CsvParser(string file, Validator validator)
             => (File, Validator) = (file, validator);
-
-        public List<T> Parse() {
-            var list = new List<T>();
-
-            return list;
+        public IEnumerable<T> Parse(Action<string, dynamic> callback = null) {
+            using (var reader = new StreamReader(File))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                csv.Configuration.HasHeaderRecord = false;
+                if (callback != null) callback("csv", csv);
+                var records = csv.GetRecords<T>();
+                return records.ToList();
+            }
         }
     }
 }
