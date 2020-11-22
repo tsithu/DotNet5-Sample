@@ -1,22 +1,18 @@
 using System;
 using System.Text;
-using System.ComponentModel.DataAnnotations;
-
 namespace DotNet5WebApi.Library
 {
-    public class Validator
+    public abstract class Validator
     {
-        public void Verify<T>(T data){
-            // (bool isValid, String errors)
+        public virtual (bool, string) Verify(dynamic record){
             var isValid = true;
             var sbErrors = new StringBuilder();
 
-            // TODO: implement validation process
-
-            if (!isValid) 
-            {
-                throw new ValidationException(sbErrors.ToString());
+            if (record != null) {
+                // TODO: implement default validation process
             }
+
+            return (isValid, sbErrors.ToString());
         }
     }
 }

@@ -23,4 +23,12 @@
             </PaymentDetails>
             <Status>Done</Status>
     </Transaction>
+	<Transaction id="Inv00004">
+	        <TransactionDate>2020-01-24T16:09:15</TransactionDate>
+	            <PaymentDetails>
+	                <Amount>1000.00</Amount>
+	                <CurrencyCode>EUR</CurrencyCode>
+	            </PaymentDetails>
+	            <Status>Done</Status>
+    </Transaction>
 </Transactions>

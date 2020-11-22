@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-
 namespace DotNet5WebApi.Library
 {
     public class ParserFactory

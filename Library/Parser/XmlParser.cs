@@ -2,6 +2,9 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Xml;
+using System.Text;
+using System.ComponentModel.DataAnnotations;
+using DotNet5WebApi.Models;
 namespace DotNet5WebApi.Library
 {
     public class XmlParser<T> : IParser<T>
@@ -29,10 +32,24 @@ namespace DotNet5WebApi.Library
                         records.Add(mapper.Map(transactionElement));
                     }
                 }
-            }     
+            }            
+            
+            if (Validator != null)
+            {
+                var sbErrors = new StringBuilder();
+                foreach (var record in records)
+                {
+                    var (isValid, errors) = Validator.Verify(record);
+                    if (!isValid) {
+                        sbErrors.AppendLine(errors);
+                    }
+                }
+                if (sbErrors.Length > 0)
+                {
+                    throw new ValidationException(sbErrors.ToString());
+                }              
+            }
 
-            
-            
             return records;
         }
     }

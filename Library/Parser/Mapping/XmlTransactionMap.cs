@@ -22,9 +22,10 @@ namespace DotNet5WebApi.Library {
                     switch (childNode.Name)
                     {
                         case "TransactionDate":
+                            DateTime tranDate;
                             var dtFormat = "yyyy-MM-ddTHH:mm:ss";
-                            var dt = DateTime.ParseExact(childNode.InnerText, dtFormat, CultureInfo.InvariantCulture);
-                            newTran.TransactionDate = dt;
+                            var isValid = DateTime.TryParseExact(childNode.InnerText, dtFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out tranDate);
+                            newTran.TransactionDate = isValid ? tranDate : DateTime.MinValue;
                             break;
                         case "PaymentDetails":
                             // Amount

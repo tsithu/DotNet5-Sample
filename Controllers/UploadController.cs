@@ -9,6 +9,7 @@ using DotNet5WebApi.Library;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 namespace DotNet5WebApi.Controllers
 {
     [ApiController]
@@ -29,7 +30,13 @@ namespace DotNet5WebApi.Controllers
                 var fileName = file?.FileName;
                 var folderName = Path.Combine(Directory.GetCurrentDirectory(), Config["UploadDir"]);
                 var filePath =  Path.Combine(folderName, fileName);
-                var validator = new DotNet5WebApi.Library.Validator();
+
+                using (var stream = System.IO.File.Create(filePath))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                var validator = new DotNet5WebApi.Library.TransactionValidator();
                 var parserFactory = new ParserFactory();
                 var transactionParser = parserFactory.GetDataParser<Transaction>(filePath, validator);
                 var transactionList = transactionParser.Parse((parserType, payload) => {
