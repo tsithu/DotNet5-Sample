@@ -86,3 +86,9 @@ export default {
     }
 }
 </script>
+
+<style>
+.file-uploads {
+  margin-right: 7px;
+}
+</style>

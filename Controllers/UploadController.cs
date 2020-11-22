@@ -1,8 +1,6 @@
 using System;
 using System.IO;
-using System.Text.Json;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -10,6 +8,7 @@ using DotNet5WebApi.Models;
 using DotNet5WebApi.Library;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 namespace DotNet5WebApi.Controllers
 {
     [ApiController]
@@ -28,28 +27,31 @@ namespace DotNet5WebApi.Controllers
             try
             {
                 var fileName = file?.FileName;
-                Logger.LogInformation(String.Format("File Name: {0} .", fileName));
                 var folderName = Path.Combine(Directory.GetCurrentDirectory(), Config["UploadDir"]);
                 var filePath =  Path.Combine(folderName, fileName);
-                var validator = new Validator();
+                var validator = new DotNet5WebApi.Library.Validator();
                 var parserFactory = new ParserFactory();
                 var transactionParser = parserFactory.GetDataParser<Transaction>(filePath, validator);
-                var transactionList = transactionParser.Parse((parserType, obj) => {
+                var transactionList = transactionParser.Parse((parserType, payload) => {
                     switch(parserType) {
                         case "csv":
-                            obj.Configuration.RegisterClassMap<TransactionMap>();
-                            break;
+                            var csv = payload as CsvHelper.CsvReader;
+                            csv.Configuration.RegisterClassMap<CsvTransactionMap>();
+                            return null;
                         case "xml":
-                            // Do Something if needed
-                            break;
+                            return new DotNet5WebApi.Library.XmlTransactionMap();
                         default:
-                            break;
+                            return null;
                     }
                 });
 
+                // Logger.LogInformation(JsonSerializer.Serialize(transactionList));
                 var effectedRecords = await SaveToDatabase<Transaction>(transactionList);
                 
                 return Ok(effectedRecords);
+            }
+            catch (ValidationException errors) {
+                return StatusCode(400, $"Bad Request: {errors}");
             }
             catch (Exception ex)
             {

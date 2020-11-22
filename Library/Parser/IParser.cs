@@ -6,6 +6,6 @@ namespace DotNet5WebApi.Library
     {   
         string File { get; init; }
         Validator Validator { get; init; }
-        IEnumerable<T> Parse(Action<string, dynamic> callback = null);
+        IEnumerable<T> Parse(Func<string, dynamic, dynamic> hook = null);
     }
 }

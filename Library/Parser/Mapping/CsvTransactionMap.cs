@@ -5,9 +5,9 @@ using System.Text.Json;
 using System.Globalization;
 
 namespace DotNet5WebApi.Library {
-    public class TransactionMap : ClassMap<Transaction>
+    public class CsvTransactionMap : ClassMap<Transaction>
     {
-        public TransactionMap()
+        public CsvTransactionMap()
         {
             // "Invoice0000001","1,000.00","USD","20/02/2019 12:33:16","Approved"
             Map(t => t.Code).Index(0);

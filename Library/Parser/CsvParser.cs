@@ -13,7 +13,7 @@ namespace DotNet5WebApi.Library
 
         public CsvParser(string file, Validator validator)
             => (File, Validator) = (file, validator);
-        public IEnumerable<T> Parse(Action<string, dynamic> callback = null) {
+        public IEnumerable<T> Parse(Func<string, dynamic, dynamic> callback = null) {
             using (var reader = new StreamReader(File))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
