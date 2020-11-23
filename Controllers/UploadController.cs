@@ -27,33 +27,9 @@ namespace DotNet5WebApi.Controllers
         {
             try
             {
-                var fileName = file?.FileName;
-                var folderName = Path.Combine(Directory.GetCurrentDirectory(), Config["UploadDir"]);
-                var filePath =  Path.Combine(folderName, fileName);
-
-                using (var stream = System.IO.File.Create(filePath))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                var validator = new DotNet5WebApi.Library.TransactionValidator();
-                var parserFactory = new ParserFactory();
-                var transactionParser = parserFactory.GetDataParser<Transaction>(filePath, validator);
-                var transactionList = transactionParser.Parse((parserType, payload) => {
-                    switch(parserType) {
-                        case "csv":
-                            var csv = payload as CsvHelper.CsvReader;
-                            csv.Configuration.RegisterClassMap<CsvTransactionMap>();
-                            return null;
-                        case "xml":
-                            return new DotNet5WebApi.Library.XmlTransactionMap();
-                        default:
-                            return null;
-                    }
-                });
-
-                // Logger.LogInformation(JsonSerializer.Serialize(transactionList));
-                var effectedRecords = await SaveToDatabase<Transaction>(transactionList);
+                var filePath = await SaveFile(file);
+                var parsedData = ParseData<Transaction>(filePath, Hook4Transaction);
+                var effectedRecords = await SaveToDatabase<Transaction>(parsedData);
                 
                 return Ok(effectedRecords);
             }
@@ -66,6 +42,38 @@ namespace DotNet5WebApi.Controllers
             }
         }
 
+        private dynamic Hook4Transaction(string parserType, dynamic payload) {
+            switch (parserType)
+            {
+                case "csv":
+                    var csv = payload as CsvHelper.CsvReader;
+                    csv.Configuration.RegisterClassMap<CsvTransactionMap>();
+                    return null;
+                case "xml":
+                    return new DotNet5WebApi.Library.XmlTransactionMap();
+                default:
+                    return null;
+            }
+        }
+        private async Task<string> SaveFile(IFormFile file) {
+            var fileName = file?.FileName;
+            var folderName = Path.Combine(Directory.GetCurrentDirectory(), Config["UploadDir"]);
+            var fileFullPath = Path.Combine(folderName, fileName);
+
+            using (var stream = System.IO.File.Create(fileFullPath))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fileFullPath;
+        }
+        private IEnumerable<T> ParseData<T>(string filePath, Func<string, dynamic, dynamic> hook) {
+            var validator = new DotNet5WebApi.Library.TransactionValidator();
+            var parserFactory = new ParserFactory();
+            var transactionParser = parserFactory.GetDataParser<T>(filePath, validator);
+            var records = transactionParser.Parse(hook);
+            return records;
+        }
         private async Task<int> SaveToDatabase<T>(IEnumerable<T> records) {
             var count = 0;
 

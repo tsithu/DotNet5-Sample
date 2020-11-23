@@ -8,13 +8,13 @@ namespace DotNet5WebApi.Library
     {
         public override (bool, string) Verify(dynamic record)
         {
-            var transaction = record as Transaction;
-            var sbErrors = new StringBuilder();
-            var data = record as Transaction;
             var isValid = true;
-
+            var sbErrors = new StringBuilder();
+            
             if (record != null)
             {
+                var transaction = record as Transaction;
+
                 if (String.IsNullOrEmpty(transaction.Code)) 
                 {
                     sbErrors.AppendLine("Required: \"Code\" field cannot be empty.");
