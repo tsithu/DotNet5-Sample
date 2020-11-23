@@ -16,7 +16,8 @@ using Microsoft.AspNetCore.Http.Features;
 namespace DotNet5WebApi
 {
     public class Startup
-    {        readonly string MyAllowSpecificOrigins = "AllowSpecificOrigins";
+    {        
+        readonly string MyAllowSpecificOrigins = "AllowSpecificOrigins";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;

@@ -28,7 +28,7 @@ namespace DotNet5WebApi.Controllers
             try
             {
                 var filePath = await SaveFile(file);
-                var parsedData = ParseData<Transaction>(filePath, Hook4Transaction);
+                var parsedData = ParseData<Transaction>(filePath, new TransactionValidator(), Hook4Transaction);
                 var effectedRecords = await SaveToDatabase<Transaction>(parsedData);
                 
                 return Ok(effectedRecords);
@@ -41,7 +41,6 @@ namespace DotNet5WebApi.Controllers
                 return StatusCode(500, $"Internal server error: {ex}");
             }
         }
-
         private dynamic Hook4Transaction(string parserType, dynamic payload) {
             switch (parserType)
             {
@@ -67,8 +66,7 @@ namespace DotNet5WebApi.Controllers
 
             return fileFullPath;
         }
-        private IEnumerable<T> ParseData<T>(string filePath, Func<string, dynamic, dynamic> hook) {
-            var validator = new DotNet5WebApi.Library.TransactionValidator();
+        private IEnumerable<T> ParseData<T>(string filePath, DotNet5WebApi.Library.Validator validator, Func<string, dynamic, dynamic> hook) {
             var parserFactory = new ParserFactory();
             var transactionParser = parserFactory.GetDataParser<T>(filePath, validator);
             var records = transactionParser.Parse(hook);
